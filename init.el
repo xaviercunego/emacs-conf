@@ -126,7 +126,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(doom-themes doom-modeline counsel ivy use-package gnu-elpa-keyring-update)))
+   '(markdown-mode dts-mode doom-themes doom-modeline counsel ivy use-package gnu-elpa-keyring-update)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -144,3 +144,12 @@
 (setq auto-mode-alist (cons '("\\.bbappend$" . bb-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbclass$" . bb-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.conf$" . bb-mode) auto-mode-alist))
+
+;; Redirect backup files
+(setq backup-directory-alist            '((".*" . "~/.Trash")))
+
+;; Use markdown-mode for README and .md files
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
