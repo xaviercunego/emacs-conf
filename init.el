@@ -153,3 +153,8 @@
   :ensure t
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown"))
+
+;; Scroll line by line
+(setq scroll-step 1
+      scroll-margin 3
+      scroll-conservatively 10000)
