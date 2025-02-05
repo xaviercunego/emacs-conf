@@ -1,5 +1,5 @@
 (defun copy-to-clipboard ()
-  (interactive)
+65;6800;1c  (interactive)
   (if (display-graphic-p)
       (progn
 	(message "Yanked region to x-clipboard!")
@@ -121,6 +121,8 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 (custom-set-variables
+
+ 
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
@@ -158,3 +160,10 @@
 (setq scroll-step 1
       scroll-margin 3
       scroll-conservatively 10000)
+
+;; Set shortcuts for scrolling the buffer without moving the cursor
+(global-set-key (kbd "M-<down>") (lambda () (interactive) (scroll-up-line)))
+(global-set-key (kbd "M-<up>") (lambda () (interactive) (scroll-down-line)))
+
+;; Set the font size
+(set-face-attribute 'default nil :height 115)
