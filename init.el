@@ -172,3 +172,6 @@
 (add-to-list 'load-path "~/.emacs.d/manual-modes/multi-term")
 (require 'multi-term)
 (setq multi-term-program "/bin/zsh")
+
+;; Always active winner mode
+(winner-mode 1)
