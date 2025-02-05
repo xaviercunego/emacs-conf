@@ -167,3 +167,8 @@
 
 ;; Set the font size
 (set-face-attribute 'default nil :height 115)
+
+;; Add multi-term mode
+(add-to-list 'load-path "~/.emacs.d/manual-modes/multi-term")
+(require 'multi-term)
+(setq multi-term-program "/bin/zsh")
