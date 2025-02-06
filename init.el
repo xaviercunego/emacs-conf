@@ -121,14 +121,13 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 (custom-set-variables
-
- 
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ispell-dictionary nil)
  '(package-selected-packages
-   '(gitlab-ci-mode markdown-mode dts-mode doom-themes doom-modeline counsel ivy use-package gnu-elpa-keyring-update)))
+   '(which-key gitlab-ci-mode markdown-mode dts-mode doom-themes doom-modeline counsel ivy use-package gnu-elpa-keyring-update)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -175,3 +174,7 @@
 
 ;; Always active winner mode
 (winner-mode 1)
+
+(add-to-list 'load-path "path/to/which-key.el")
+(require 'which-key)
+(which-key-mode)
