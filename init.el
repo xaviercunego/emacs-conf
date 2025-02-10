@@ -1,3 +1,5 @@
+;; CUSTOM FUNCTIONS ;;
+
 (defun copy-to-clipboard ()
 65;6800;1c  (interactive)
   (if (display-graphic-p)
@@ -27,13 +29,17 @@
 (global-set-key [f8] 'copy-to-clipboard)
 (global-set-key [f9] 'paste-from-clipboard)
 
+
+;; CUSTOM BINDING ;;
+
 (global-set-key (kbd "C-z") 'undo)
 
-(setq x-select-enable-clipboard t)
 
+;; GENERAL CUSTOM ;;
 
+(setq x-select-enable-clipboard t)  ;; Use the general clipboard
 
-(setq inhibit-startup-message t)
+(setq inhibit-startup-message t)  ;; Disable start-up message 
 
 (scroll-bar-mode -1)        ; Disable visible scrollbar
 (tool-bar-mode -1)          ; Disable the toolbar
@@ -42,13 +48,31 @@
 
 (menu-bar-mode -1)          ; Disable the menu bar
 
-;; Set up the visible bell
-(setq visible-bell t)
+(setq visible-bell t)  ;; Set up the visible bell
 
-;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)  ;; Make ESC quit prompts
 
-;; Initialize package sources[
+;; Redirect backup files
+(setq backup-directory-alist            '((".*" . "~/.Trash")))
+
+;; Scroll line by line
+(setq scroll-step 1
+      scroll-margin 3
+      scroll-conservatively 10000)
+
+;; Set shortcuts for scrolling the buffer without moving the cursor
+(global-set-key (kbd "M-<down>") (lambda () (interactive) (scroll-up-line)))
+(global-set-key (kbd "M-<up>") (lambda () (interactive) (scroll-down-line)))
+
+;; Set the font size
+(set-face-attribute 'default nil :height 115)
+
+;; Always active winner mode
+(winner-mode 1)
+
+
+;; PACKAGE MANAGEMENT ;;
+
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -59,13 +83,16 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-  ;; Initialize use-package on non-Linux platforms
+;; Initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
 
 (require 'use-package)
 (setq use-package-always-ensure t)
+
+
+;; PACKAGES ;;
 
 (use-package ivy
   :diminish
@@ -120,22 +147,31 @@
   (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ispell-dictionary nil)
- '(package-selected-packages
-   '(which-key gitlab-ci-mode markdown-mode dts-mode doom-themes doom-modeline counsel ivy use-package gnu-elpa-keyring-update)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 
-;; Manual modes ;;
+;; Markdown files syntax mode
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
+
+;; multi-term mode
+(add-to-list 'load-path "~/.emacs.d/manual-modes/multi-term")
+(require 'multi-term)
+(setq multi-term-program "/bin/zsh")
+
+(use-package which-key
+  :init (which-key-mode))
+
+(use-package ivy-rich
+  :ensure t
+  :config
+  (ivy-rich-mode 1))  ;; Enables ivy-rich mode
+
+(use-package gitlab-ci-mode)
+(use-package dts-mode)
+(use-package gnu-elpa-keyring-update)
+
+;; CUSTOM MODES ;;
 
 ;; Bitbake files syntax mode
 (add-to-list 'load-path "~/.emacs.d/manual-modes/bb-mode")
@@ -145,36 +181,3 @@
 (setq auto-mode-alist (cons '("\\.bbappend$" . bb-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbclass$" . bb-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.conf$" . bb-mode) auto-mode-alist))
-
-;; Redirect backup files
-(setq backup-directory-alist            '((".*" . "~/.Trash")))
-
-;; Use markdown-mode for README and .md files
-(use-package markdown-mode
-  :ensure t
-  :mode ("README\\.md\\'" . gfm-mode)
-  :init (setq markdown-command "multimarkdown"))
-
-;; Scroll line by line
-(setq scroll-step 1
-      scroll-margin 3
-      scroll-conservatively 10000)
-
-;; Set shortcuts for scrolling the buffer without moving the cursor
-(global-set-key (kbd "M-<down>") (lambda () (interactive) (scroll-up-line)))
-(global-set-key (kbd "M-<up>") (lambda () (interactive) (scroll-down-line)))
-
-;; Set the font size
-(set-face-attribute 'default nil :height 115)
-
-;; Add multi-term mode
-(add-to-list 'load-path "~/.emacs.d/manual-modes/multi-term")
-(require 'multi-term)
-(setq multi-term-program "/bin/zsh")
-
-;; Always active winner mode
-(winner-mode 1)
-
-(add-to-list 'load-path "path/to/which-key.el")
-(require 'which-key)
-(which-key-mode)
