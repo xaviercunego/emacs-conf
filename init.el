@@ -70,6 +70,8 @@
 ;; Always active winner mode
 (winner-mode 1)
 
+;; Remove the OS title bar at the top of Emacs
+(add-to-list 'default-frame-alist '(undecorated . t))
 
 ;; PACKAGE MANAGEMENT ;;
 
