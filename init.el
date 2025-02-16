@@ -169,6 +169,22 @@
 (use-package dts-mode)
 (use-package gnu-elpa-keyring-update)
 
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :demand t
+  :bind ("C-M-p" . projectile-find-file)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  (when (file-directory-p "~/etc-project/cccp-yocto-image/cccp-layers/meta-cccp")
+    (setq projectile-project-search-path '("etc-project/cccp-yocto-image/cccp-layers/meta-cccp")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
 ;; CUSTOM MODES ;;
 
 ;; Bitbake files syntax mode
@@ -179,3 +195,4 @@
 (setq auto-mode-alist (cons '("\\.bbappend$" . bb-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbclass$" . bb-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.conf$" . bb-mode) auto-mode-alist))
+
