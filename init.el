@@ -129,11 +129,9 @@
   (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
 
 (use-package doom-modeline
-  :ensure t
   :init (doom-modeline-mode 1))
 
 (use-package doom-themes
-  :ensure t
   :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -152,7 +150,6 @@
 
 ;; Markdown files syntax mode
 (use-package markdown-mode
-  :ensure t
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown"))
 
@@ -165,7 +162,6 @@
   :init (which-key-mode))
 
 (use-package ivy-rich
-  :ensure t
   :config
   (ivy-rich-mode 1))  ;; Enables ivy-rich mode
 
