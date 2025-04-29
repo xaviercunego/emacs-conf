@@ -33,6 +33,8 @@
 ;; CUSTOM BINDING ;;
 
 (global-set-key (kbd "C-z") 'undo)
+(global-set-key (kbd "C-c t") 'multi-term)
+(global-set-key (kbd "C-c r") 'revert-buffer)
 
 
 ;; GENERAL CUSTOM ;;
