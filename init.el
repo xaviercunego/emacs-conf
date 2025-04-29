@@ -50,6 +50,8 @@
 
 (menu-bar-mode -1)          ; Disable the menu bar
 
+(setq column-number-mode t) ; Emable column number display
+
 (setq visible-bell t)  ;; Set up the visible bell
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)  ;; Make ESC quit prompts
