@@ -77,6 +77,11 @@
 ;; Remove the OS title bar at the top of Emacs
 (add-to-list 'default-frame-alist '(undecorated . t))
 
+;; Save all open buffers
+(desktop-save-mode 1)
+(setq desktop-save 'if-exists) ;; Only save if a desktop session already exists
+(add-hook 'kill-emacs-hook #'desktop-save-in-desktop-dir) ;; Auto-save before shutdonwn
+
 ;; PACKAGE MANAGEMENT ;;
 
 (require 'package)
