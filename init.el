@@ -68,6 +68,9 @@
 ;; Redirect backup files
 (setq backup-directory-alist            '((".*" . "~/.Trash")))
 
+;; Redirect auto-save files
+(setq auto-save-file-name-transforms '((".*" "~/.Trash/" t)))
+
 ;; Scroll line by line
 (setq scroll-step 1
       scroll-margin 3
