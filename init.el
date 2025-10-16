@@ -40,6 +40,11 @@
 (global-set-key (kbd "C-c s") 'projectile-ripgrep)
 (global-set-key (kbd "C-c f") 'projectile-find-file)
 
+;; Bind Ctl + Alt + Arrows for Window Movement
+(global-set-key (kbd "C-M-<left>")  'windmove-left)
+(global-set-key (kbd "C-M-<right>") 'windmove-right)
+(global-set-key (kbd "C-M-<up>")    'windmove-up)
+(global-set-key (kbd "C-M-<down>")  'windmove-down)
 
 ;; GENERAL CUSTOM ;;
 
