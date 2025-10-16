@@ -37,6 +37,8 @@
 (global-set-key (kbd "C-c r") 'revert-buffer)
 (global-set-key (kbd "C-c m l") 'magit-log-buffer-file)
 (global-set-key (kbd "C-c m b") 'magit-blame-addition)
+(global-set-key (kbd "C-c s") 'projectile-ripgrep)
+(global-set-key (kbd "C-c f") 'projectile-find-file)
 
 
 ;; GENERAL CUSTOM ;;
