@@ -91,6 +91,12 @@
 (setq desktop-save 'if-exists) ;; Only save if a desktop session already exists
 (add-hook 'kill-emacs-hook #'desktop-save-in-desktop-dir) ;; Auto-save before shutdonwn
 
+;; Prevent splitting windows for projectile-ripgrep results
+(add-to-list 'display-buffer-alist
+             '("\\*ripgrep-search\\*"
+               (display-buffer-reuse-window display-buffer-same-window)))
+
+
 ;; PACKAGE MANAGEMENT ;;
 
 (require 'package)
