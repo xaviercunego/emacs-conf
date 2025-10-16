@@ -71,6 +71,9 @@
 ;; Redirect auto-save files
 (setq auto-save-file-name-transforms '((".*" "~/.Trash/" t)))
 
+;; Disable lock files
+(setq create-lockfiles nil)
+
 ;; Scroll line by line
 (setq scroll-step 1
       scroll-margin 3
