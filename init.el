@@ -39,6 +39,7 @@
 (global-set-key (kbd "C-c m b") 'magit-blame-addition)
 (global-set-key (kbd "C-c s") 'projectile-ripgrep)
 (global-set-key (kbd "C-c f") 'projectile-find-file)
+(global-set-key (kbd "C-c d") 'ranger)
 
 ;; Bind Ctl + Alt + Arrows for Window Movement
 (global-set-key (kbd "C-M-<left>")  'windmove-left)
@@ -219,6 +220,10 @@
 (use-package dockerfile-mode
   :mode "Dockerfile\\'")
 
+(use-package ranger
+  :ensure t
+  :config
+  (ranger-override-dired-mode t))
 
 ;; CUSTOM MODES ;;
 
