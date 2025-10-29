@@ -29,11 +29,10 @@
 (global-set-key [f8] 'copy-to-clipboard)
 (global-set-key [f9] 'paste-from-clipboard)
 
-
 ;; CUSTOM BINDING ;;
 
 (global-set-key (kbd "C-z") 'undo)
-(global-set-key (kbd "C-c t") 'multi-term)
+(global-set-key (kbd "C-c t") 'vterm)
 (global-set-key (kbd "C-c r") 'revert-buffer)
 (global-set-key (kbd "C-c m l") 'magit-log-buffer-file)
 (global-set-key (kbd "C-c m b") 'magit-blame-addition)
@@ -51,7 +50,12 @@
 
 (setq x-select-enable-clipboard t)  ;; Use the general clipboard
 
-(setq inhibit-startup-message t)  ;; Disable start-up message 
+(setq inhibit-startup-message t)  ;; Disable start-up message
+
+;; Performance optimizations for better terminal rendering
+(setq redisplay-skip-fontification-on-input t)  ;; Skip fontification during fast input
+(setq fast-but-imprecise-scrolling t)           ;; Faster scrolling
+(setq jit-lock-defer-time 0)                    ;; Immediate syntax highlighting
 
 (scroll-bar-mode -1)        ; Disable visible scrollbar
 (tool-bar-mode -1)          ; Disable the toolbar
@@ -149,7 +153,7 @@
   :bind (("C-M-j" . 'counsel-switch-buffer)
 	 ("M-x" . counsel-M-x)
          ("C-x b" . counsel-ibuffer)
-         ("C-x C-f" . counsel-find-file) 
+         ("C-x C-f" . counsel-find-file)
 
          :map minibuffer-local-map
          ("C-r" . 'counsel-minibuffer-history))
@@ -184,10 +188,31 @@
   :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "multimarkdown"))
 
-;; multi-term mode
-(add-to-list 'load-path "~/.emacs.d/manual-modes/multi-term")
-(require 'multi-term)
-(setq multi-term-program "/bin/zsh")
+;; vterm configuration with directory tracking
+(use-package vterm
+  :config
+  ;; Shell configuration
+  (setq vterm-shell "/bin/zsh")
+
+  ;; Performance optimizations
+  (setq vterm-max-scrollback 5000)
+  (setq vterm-timer-delay 0.01)
+  (setq vterm-always-compile-module t)
+  (setq vterm-buffer-name-string "vterm %s")
+  (setq vterm-copy-exclude-prompt t)
+  (setq vterm-kill-buffer-on-exit t)
+  (setq vterm-ignore-blink-cursor t)
+
+  ;; Hook to optimize vterm buffers
+  (add-hook 'vterm-mode-hook
+            (lambda ()
+              ;; Disable line numbers if enabled globally
+              (when (fboundp 'display-line-numbers-mode)
+                (display-line-numbers-mode -1))
+              ;; Disable unnecessary minor modes that slow down rendering
+              (setq-local scroll-margin 0)
+              (setq-local scroll-conservatively 101)
+              (setq-local scroll-preserve-screen-position t))))
 
 (use-package which-key
   :init (which-key-mode))
