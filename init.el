@@ -203,6 +203,20 @@
   (setq vterm-kill-buffer-on-exit t)
   (setq vterm-ignore-blink-cursor t)
 
+  ;; Enable copy mode keybindings
+  (define-key vterm-mode-map (kbd "C-c C-t") 'vterm-copy-mode)
+  (define-key vterm-copy-mode-map (kbd "C-c C-t") 'vterm-copy-mode)
+
+  ;; Allow M-w to work in vterm by entering copy mode temporarily
+  (define-key vterm-mode-map (kbd "M-w")
+    (lambda ()
+      (interactive)
+      (if (region-active-p)
+          (progn
+            (kill-ring-save (region-beginning) (region-end))
+            (deactivate-mark))
+        (message "No region selected"))))
+
   ;; Hook to optimize vterm buffers
   (add-hook 'vterm-mode-hook
             (lambda ()
