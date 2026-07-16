@@ -1,15 +1,25 @@
+;; PERFORMANCE ;;
+
+;; Reduce GC-induced stutter. With the default 800KB threshold, a long-running
+;; daemon (many buffers = large heap) pauses ~50ms per collection = dropped
+;; frames while scrolling/opening files. Collect far less often instead.
+(setq gc-cons-threshold (* 100 1024 1024))     ;; 100 MB
+(setq inhibit-compacting-font-caches t)        ;; Don't recompact font caches on GC (icon/glyph jank)
+(setq read-process-output-max (* 1 1024 1024)) ;; 1 MB — smoother LSP (eglot) throughput
+
 ;; CUSTOM FUNCTIONS ;;
 
 (defun copy-to-clipboard ()
-65;6800;1c  (interactive)
+  (interactive)
   (if (display-graphic-p)
       (progn
-	(message "Yanked region to x-clipboard!")
+	(message "Yanked region to clipboard!")
 	(call-interactively 'clipboard-kill-ring-save)
 	)
     (if (region-active-p)
 	(progn
-          (shell-command-on-region (region-beginning) (region-end) "xsel -i -b")
+          ;; Wayland session: use wl-copy (install with: sudo pacman -S wl-clipboard)
+          (shell-command-on-region (region-beginning) (region-end) "wl-copy")
           (message "Yanked region to clipboard!")
           (deactivate-mark))
       (message "No region active; can't yank to clipboard!")))
@@ -18,11 +28,9 @@
 (defun paste-from-clipboard ()
   (interactive)
   (if (display-graphic-p)
-      (progn
-	(clipboard-yank)
-	(message "graphics active")
-	)
-    (insert (shell-command-to-string "xsel -o -b"))
+      (clipboard-yank)
+    ;; Wayland session: use wl-paste (install with: sudo pacman -S wl-clipboard)
+    (insert (shell-command-to-string "wl-paste -n"))
     )
 )
 
@@ -48,7 +56,7 @@
 
 ;; GENERAL CUSTOM ;;
 
-(setq x-select-enable-clipboard t)  ;; Use the general clipboard
+(setq select-enable-clipboard t)  ;; Use the system clipboard (was deprecated x-select-enable-clipboard)
 
 (setq inhibit-startup-message t)  ;; Disable start-up message
 
@@ -70,11 +78,11 @@
 
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)  ;; Make ESC quit prompts
 
-;; Redirect backup files
-(setq backup-directory-alist            '((".*" . "~/.Trash")))
+;; Redirect backup files (~/.Trash did not exist on Manjaro, so backups were failing)
+(setq backup-directory-alist '((".*" . "~/.emacs.d/backups/")))
 
 ;; Redirect auto-save files
-(setq auto-save-file-name-transforms '((".*" "~/.Trash/" t)))
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/backups/" t)))
 
 ;; Disable lock files
 (setq create-lockfiles nil)
@@ -102,10 +110,58 @@
 (setq desktop-save 'if-exists) ;; Only save if a desktop session already exists
 (add-hook 'kill-emacs-hook #'desktop-save-in-desktop-dir) ;; Auto-save before shutdonwn
 
+;; Run the server INSIDE this GUI Emacs (not a headless `emacs --daemon`).
+;; `emacsclient` then opens files in this fluent, correctly-themed window.
+;; Headless daemon frames render less smoothly and load the theme before any
+;; GUI frame exists (washed-out colors), which is why we avoid it.
+(require 'server)
+(unless (server-running-p)
+  (server-start))
+
 ;; Prevent splitting windows for projectile-ripgrep results
 (add-to-list 'display-buffer-alist
              '("\\*ripgrep-search\\*"
                (display-buffer-reuse-window display-buffer-same-window)))
+
+
+;; TREE-SITTER (built into Emacs 30) ;;
+
+;; Where to fetch grammars from. Install them once with:
+;;   M-x treesit-install-language-grammar  (needs gcc, which you have)
+;; or run the batch installer below via: M-x my/treesit-install-all
+(setq treesit-language-source-alist
+      '((c          "https://github.com/tree-sitter/tree-sitter-c")
+        (cpp        "https://github.com/tree-sitter/tree-sitter-cpp")
+        (python     "https://github.com/tree-sitter/tree-sitter-python")
+        (bash       "https://github.com/tree-sitter/tree-sitter-bash")
+        (json       "https://github.com/tree-sitter/tree-sitter-json")
+        (yaml       "https://github.com/tree-sitter-grammars/tree-sitter-yaml")
+        (cmake      "https://github.com/uyha/tree-sitter-cmake")
+        (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")))
+
+(defun my/treesit-install-all ()
+  "Install every grammar in `treesit-language-source-alist' that is missing."
+  (interactive)
+  (dolist (lang (mapcar #'car treesit-language-source-alist))
+    (unless (treesit-language-available-p lang)
+      (treesit-install-language-grammar lang))))
+
+;; Prefer tree-sitter major modes, but ONLY when the grammar is actually
+;; installed — otherwise opening the file throws "Tree-sitter for X isn't
+;; available". Install grammars with M-x my/treesit-install-all, then restart.
+(dolist (entry '((c-mode       c      c-ts-mode)
+                 (c++-mode     cpp    c++-ts-mode)
+                 (python-mode  python python-ts-mode)
+                 (sh-mode      bash   bash-ts-mode)
+                 (json-mode    json   json-ts-mode)
+                 (js-json-mode json   json-ts-mode)
+                 (cmake-mode   cmake  cmake-ts-mode)))
+  (when (treesit-language-available-p (nth 1 entry))
+    (add-to-list 'major-mode-remap-alist (cons (nth 0 entry) (nth 2 entry)))))
+
+;; YAML has no classic built-in mode; use yaml-ts-mode only if its grammar exists.
+(when (treesit-language-available-p 'yaml)
+  (add-to-list 'auto-mode-alist '("\\.ya?ml\\'" . yaml-ts-mode)))
 
 
 ;; PACKAGE MANAGEMENT ;;
@@ -152,7 +208,7 @@
 (use-package counsel
   :bind (("C-M-j" . 'counsel-switch-buffer)
 	 ("M-x" . counsel-M-x)
-         ("C-x b" . counsel-ibuffer)
+         ("C-x b" . counsel-switch-buffer)
          ("C-x C-f" . counsel-find-file)
 
          :map minibuffer-local-map
@@ -228,6 +284,16 @@
               (setq-local scroll-conservatively 101)
               (setq-local scroll-preserve-screen-position t))))
 
+;; Claude Code integration (https://github.com/stevemolitor/claude-code.el)
+(use-package claude-code
+  :vc (:url "https://github.com/stevemolitor/claude-code.el" :rev :newest)
+  :init
+  ;; Reuse the already-compiled vterm backend instead of the default 'eat
+  (setq claude-code-terminal-backend 'vterm)
+  :config
+  (claude-code-mode)
+  :bind-keymap ("C-c c" . claude-code-command-map))
+
 (use-package which-key
   :init (which-key-mode))
 
@@ -264,6 +330,54 @@
   :config
   (ranger-override-dired-mode t))
 
+;; CODE INTELLIGENCE ;;
+
+;; In-buffer completion popup (the company-mode alternative, minimal & fast)
+(use-package corfu
+  :init
+  (global-corfu-mode)
+  :custom
+  (corfu-auto t)            ;; Auto-popup completions
+  (corfu-auto-delay 0.2)
+  (corfu-auto-prefix 2)     ;; ...after 2 chars
+  (corfu-cycle t)
+  (corfu-quit-no-match 'separator)
+  :bind (:map corfu-map ("RET" . nil)))  ;; Don't steal RET; TAB inserts
+
+;; LSP client (built into Emacs 30). Flymake diagnostics come for free.
+(use-package eglot
+  :ensure nil
+  :hook ((c-ts-mode c++-ts-mode python-ts-mode bash-ts-mode
+          yaml-ts-mode dockerfile-ts-mode cmake-ts-mode) . eglot-ensure)
+  :custom
+  (eglot-autoshutdown t)         ;; Kill server when last buffer closes
+  (eglot-events-buffer-size 0)   ;; Don't log LSP traffic (perf)
+  :bind (:map eglot-mode-map
+              ("C-c l r" . eglot-rename)
+              ("C-c l a" . eglot-code-actions)
+              ("C-c l f" . eglot-format)))
+
+;; Snippets — handy for boilerplate-heavy Yocto recipes
+(use-package yasnippet
+  :config (yas-global-mode 1))
+(use-package yasnippet-snippets)
+
+;; Trim trailing whitespace ONLY on lines you edited (safe for Yocto recipes)
+(use-package ws-butler
+  :hook (prog-mode . ws-butler-mode))
+
+;; Git diff indicators in the fringe
+(use-package diff-hl
+  :config
+  (global-diff-hl-mode)
+  :hook ((magit-pre-refresh  . diff-hl-magit-pre-refresh)
+         (magit-post-refresh . diff-hl-magit-post-refresh)))
+
+;; Tighter projectile + ivy integration
+(use-package counsel-projectile
+  :after (counsel projectile)
+  :config (counsel-projectile-mode))
+
 ;; CUSTOM MODES ;;
 
 ;; Bitbake files syntax mode
@@ -274,3 +388,22 @@
 (setq auto-mode-alist (cons '("\\.bbappend\\'" . bb-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.bbclass\\'" . bb-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.conf\\'" . bb-mode) auto-mode-alist))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(claude-code corfu counsel-projectile diff-hl dockerfile-mode
+		 doom-modeline doom-themes dts-mode gitlab-ci-mode
+		 gnu-elpa-keyring-update ivy-rich magit markdown-mode
+		 ranger ripgrep vterm wgrep ws-butler
+		 yasnippet-snippets))
+ '(package-vc-selected-packages
+   '((claude-code :url "https://github.com/stevemolitor/claude-code.el"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
