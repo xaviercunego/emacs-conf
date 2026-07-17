@@ -1,0 +1,30 @@
+# Downloaded packages
+/elpa/
+
+# Native / byte compilation caches
+/eln-cache/
+*.elc
+
+# Auto-save & backup files
+/auto-save-list/
+*~
+\#*\#
+.\#*
+
+# Externally cloned modes (installed by bootstrap)
+/manual-modes/
+
+# Package / project runtime state
+/projectile-bookmarks.eld
+/transient/
+/.cache/
+/recentf
+/history
+/places
+/bookmarks
+
+# Emacs server
+/server/
+
+# Custom-set data written by Customize
+/custom.el
