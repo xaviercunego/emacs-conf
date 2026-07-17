@@ -16,12 +16,20 @@
 
 # Package / project runtime state
 /projectile-bookmarks.eld
+/projects
 /transient/
 /.cache/
 /recentf
 /history
 /places
 /bookmarks
+
+# desktop-save-mode session files
+/.emacs.desktop
+/.emacs.desktop.lock
+
+# tree-sitter grammars
+/tree-sitter/
 
 # Emacs server
 /server/
