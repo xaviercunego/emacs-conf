@@ -251,7 +251,9 @@
   (setq vterm-shell "/bin/zsh")
 
   ;; Performance optimizations
-  (setq vterm-max-scrollback 5000)
+  ;; Scrollback is fixed when a vterm buffer is CREATED, so this only
+  ;; affects new buffers.  Hard ceiling is 100000 (SB_MAX in vterm-module.h).
+  (setq vterm-max-scrollback 50000)
   (setq vterm-timer-delay 0.01)
   (setq vterm-always-compile-module t)
   (setq vterm-buffer-name-string "vterm %s")
@@ -262,6 +264,11 @@
   ;; Enable copy mode keybindings
   (define-key vterm-mode-map (kbd "C-c C-t") 'vterm-copy-mode)
   (define-key vterm-copy-mode-map (kbd "C-c C-t") 'vterm-copy-mode)
+
+  ;; Send the next key straight to the terminal, bypassing Emacs.
+  ;; Use for one-off C-x / C-c that a TUI (e.g. Claude Code) needs to receive.
+  (define-key vterm-mode-map (kbd "C-c C-q") 'vterm-send-next-key)
+
 
   ;; Allow M-w to work in vterm by entering copy mode temporarily
   (define-key vterm-mode-map (kbd "M-w")
