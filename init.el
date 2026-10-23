@@ -294,6 +294,12 @@
   (claude-code-mode)
   :bind-keymap ("C-c c" . claude-code-command-map))
 
+;; Save/restore vterm buffers with desktop-save-mode (~/.emacs.d/lisp/vterm-desktop.el).
+;; Every vterm comes back in its working directory; vterms running an
+;; interactive Claude Code session get `claude --resume <id>' typed in.
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(require 'vterm-desktop)
+
 (use-package which-key
   :init (which-key-mode))
 
